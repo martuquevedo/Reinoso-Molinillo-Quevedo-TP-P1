@@ -15,6 +15,9 @@ public class Juego extends InterfaceJuego
 	private Entorno entorno;
 	private Gondolf Gondolf;
 	private Image fondo;
+	private Enemigo[] enemigos = new Enemigo[50];
+	private int enemigosVivos = 0;
+	private int totalCreados = 0;
 	
 	// Variables y métodos propios de cada grupo
 	// ...
@@ -32,6 +35,10 @@ public class Juego extends InterfaceJuego
 		this.entorno.iniciar();
 		
 		this.Gondolf = new Gondolf(300, 300, 25, 10, Color.red);
+		 this.enemigos = new Enemigo[50];
+		    this.enemigosVivos = 0;
+		    this.totalCreados = 0;
+
 	}
 
 	/**
@@ -56,14 +63,52 @@ public class Juego extends InterfaceJuego
 		if(entorno.estaPresionada(entorno.TECLA_ABAJO)&& !Gondolf.colisionaPorAbajo(entorno)) {
 			Gondolf.MoverAbajo();
 			}
-			
+		if (enemigosVivos < 10 && totalCreados < 50) {
+		    enemigos[totalCreados] = generarMurcielagoAleatorio(); // genera uno nuevo
+		    enemigosVivos++;
+		    totalCreados++;
+		}
+		 // Mover, dibujar y colisionar murciélagos
+        for (int i = 0; i < enemigos.length; i++) {
+            if (enemigos[i] != null) {
+                enemigos[i].moverHacia(Gondolf.getX(), Gondolf.getY());
+                enemigos[i].dibujar(entorno);
+
+        	 if (enemigos[i].colisionaCon(Gondolf.getX(), Gondolf.getY(), 20)) {
+                    enemigos[i] = null;
+                    enemigosVivos--;
+                   // Gondolf.restarVida(10); // método que debería tener Gondolf
+                }
 		entorno.dibujarImagen(fondo, entorno.ancho() / 2, entorno.alto() / 2, 0);
 		this.dibujarObjetos();
 		}	
+	}
+	}
 	
 	public void dibujarObjetos() {
 		this.Gondolf.dibujar(entorno);
+		for (int i = 0; i < enemigos.length; i++) {
+	        if (enemigos[i] != null) {
+	            enemigos[i].dibujar(entorno);
+	        }
+	    }
 	}
+
+	private Enemigo generarMurcielagoAleatorio() {
+	    int lado = (int)(Math.random() * 4); // 0=arriba, 1=derecha, 2=abajo, 3=izquierda
+	    int x = 0;
+	    int y = 0;
+
+	    switch (lado) {
+	        case 0: x = (int)(Math.random() * 625); y = -20; break;       // arriba
+	        case 1: x = 620; y = (int)(Math.random() * 600); break;       // derecha
+	        case 2: x = (int)(Math.random() * 625); y = 620; break;       // abajo
+	        case 3: x = -20; y = (int)(Math.random() * 600); break;       // izquierda
+	    }
+
+	    return new Enemigo(x, y, 20, 20, Color.pink);
+	}
+	
 	
 
 	@SuppressWarnings("unused")
